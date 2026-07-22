@@ -1,1 +1,1 @@
-# Resources will be added here or split into other .tf files.
+# Resources will be added here or split into the other .tf files.
