@@ -1,0 +1,97 @@
+version: "3.9"
+
+services:
+
+  jenkins:
+
+    image: jenkins/jenkins:lts-jdk17
+
+    container_name: jenkins
+
+    restart: unless-stopped
+
+    privileged: true
+
+    ports:
+
+      - "8080:8080"
+
+      - "50000:50000"
+
+    volumes:
+
+      - jenkins_home:/var/jenkins_home
+
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    networks:
+
+      - devsecops
+
+
+  postgres:
+
+    image: postgres:16
+
+    container_name: postgres
+
+    restart: unless-stopped
+
+    environment:
+
+      POSTGRES_DB: devsecops
+
+      POSTGRES_USER: postgres
+
+      POSTGRES_PASSWORD: postgres123
+
+    ports:
+
+      - "5432:5432"
+
+    volumes:
+
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+
+      - devsecops
+
+
+  grafana:
+
+    image: grafana/grafana-oss
+
+    container_name: grafana
+
+    restart: unless-stopped
+
+    ports:
+
+      - "3000:3000"
+
+    volumes:
+
+      - grafana_data:/var/lib/grafana
+
+    depends_on:
+
+      - postgres
+
+    networks:
+
+      - devsecops
+
+
+volumes:
+
+  jenkins_home:
+
+  postgres_data:
+
+  grafana_data:
+
+
+networks:
+
+  devsecops:
