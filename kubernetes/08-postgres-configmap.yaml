@@ -1,0 +1,21 @@
+# =============================================================
+# PostgreSQL Configuration
+#
+# ConfigMaps contain NON-SENSITIVE information.
+#
+# Never store passwords here.
+#
+# =============================================================
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: postgres-config
+  namespace: devsecops
+
+data:
+
+  POSTGRES_DB: devsecops
+
+  POSTGRES_USER: postgres
