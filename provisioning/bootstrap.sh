@@ -2,12 +2,16 @@
 
 set -e
 
-echo "Updating packages..."
+echo "========================================"
+echo "Updating Ubuntu..."
+echo "========================================"
 
 sudo apt update
 sudo apt upgrade -y
 
-echo "Installing common packages..."
+echo "========================================"
+echo "Installing Required Packages..."
+echo "========================================"
 
 sudo apt install -y \
     curl \
@@ -20,66 +24,59 @@ sudo apt install -y \
     lsb-release \
     software-properties-common
 
+echo "========================================"
 echo "Installing Docker..."
+echo "========================================"
 
-# Remove old versions
-sudo apt remove -y docker docker-engine docker.io containerd runc || true
+curl -fsSL https://get.docker.com -o get-docker.sh
 
-# Docker GPG Key
-sudo install -m 0755 -d /etc/apt/keyrings
+sudo sh get-docker.sh
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-# Docker Repository
-echo \
-"deb [arch=$(dpkg --print-architecture) \
-signed-by=/etc/apt/keyrings/docker.gpg] \
-https://download.docker.com/linux/ubuntu \
-$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-sudo apt update
-
-sudo apt install -y \
-docker-ce \
-docker-ce-cli \
-containerd.io \
-docker-buildx-plugin \
-docker-compose-plugin
-
-# Allow vagrant user to run Docker
 sudo usermod -aG docker vagrant
 
 sudo systemctl enable docker
 sudo systemctl start docker
 
+echo "========================================"
+echo "Installing kubectl..."
+echo "========================================"
 
-echo "==========================================="
-echo "Installing OpenJDK 21..."
-echo "==========================================="
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
-sudo apt install -y openjdk-21-jdk
+chmod +x kubectl
 
-java -version
+sudo mv kubectl /usr/local/bin/
 
+echo "========================================"
+echo "Installing Minikube..."
+echo "========================================"
 
-echo "==========================================="
-echo "Installing Jenkins..."
-echo "==========================================="
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
-sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+chmod +x minikube-linux-amd64
 
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
-https://pkg.jenkins.io/debian-stable binary/ | \
-sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo mv minikube-linux-amd64 /usr/local/bin/minikube
 
-sudo apt update
+echo "========================================"
+echo "Installing Helm..."
+echo "========================================"
 
-sudo apt install -y jenkins
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-sudo systemctl enable jenkins
-sudo systemctl start jenkins
+echo "========================================"
+echo "Versions Installed"
+echo "========================================"
+
+docker --version
+
+docker compose version
+
+kubectl version --client
+
+minikube version
+
+helm version
+
+echo "========================================"
+echo "Bootstrap Completed Successfully"
+echo "========================================"
